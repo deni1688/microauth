@@ -1,0 +1,35 @@
+version: '3'
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: microauth
+    ports:
+      - "5432:5432"
+    networks:
+      - microauth_net
+
+  api:
+    image: microauth:latest
+    build: .
+    environment:
+      DB_HOST: db
+      DB_USER: postgres
+      DB_PASS: postgres
+      DB_NAME: microauth
+      DB_PORT: 5432
+      DB_SSL_MODE: disable
+      DB_TIMEZONE: UTC
+    ports:
+      - "9876:9876"
+    depends_on:
+      - db
+    restart: unless-stopped
+    networks:
+      - microauth_net
+
+
+networks:
+  microauth_net:
