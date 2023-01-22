@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
@@ -15,8 +16,8 @@ func NewAuthService(s Storage, e Encryption) AuthService {
 	return &authService{storage: s, encryption: e}
 }
 
-func (s authService) Authenticate(r AuthParams) (AuthTokenID, error) {
-	a, err := s.storage.FindByEmail(r.Email)
+func (s authService) Authenticate(ctx context.Context, r AuthParams) (AuthTokenID, error) {
+	a, err := s.storage.FindByEmail(ctx, r.Email)
 	if err != nil {
 		log.Printf("error: find admin by email %v\n", err)
 		return "", fmt.Errorf("find admin by email failed")
@@ -38,7 +39,7 @@ func (s authService) Authenticate(r AuthParams) (AuthTokenID, error) {
 		ExpiresAt: time.Now().Add(time.Hour * 24),
 	}
 
-	if err = s.storage.Save(a); err != nil {
+	if err = s.storage.Save(ctx, a); err != nil {
 		log.Printf("error: save admin %v\n", err)
 		return "", fmt.Errorf("save admin failed")
 	}
@@ -46,34 +47,34 @@ func (s authService) Authenticate(r AuthParams) (AuthTokenID, error) {
 	return a.AuthToken.ID, nil
 }
 
-func (s authService) Validate(id AuthTokenID) error {
+func (s authService) Validate(ctx context.Context, id AuthTokenID) error {
 	if id == "-" {
 		return fmt.Errorf("token invalid")
 	}
 
-	a, err := s.storage.FindByAuthTokenID(id)
+	a, err := s.storage.FindByAuthTokenID(ctx, id)
 	if err != nil {
 		log.Printf("error: find admin by token id %v\n", err)
 		return fmt.Errorf("find admin by token id failed")
 	}
 
 	if a.AuthToken.ExpiresAt.Before(time.Now()) {
-		_ = s.Expire(id)
+		_ = s.Expire(ctx, id)
 		return fmt.Errorf("token expired")
 	}
 
 	return nil
 }
 
-func (s authService) Expire(id AuthTokenID) error {
-	a, err := s.storage.FindByAuthTokenID(id)
+func (s authService) Expire(ctx context.Context, id AuthTokenID) error {
+	a, err := s.storage.FindByAuthTokenID(ctx, id)
 	if err != nil {
 		log.Printf("error: find admin by token id %v\n", err)
 		return fmt.Errorf("find admin by token id failed")
 	}
 
 	a.ExpireAuthToken()
-	if err = s.storage.Save(a); err != nil {
+	if err = s.storage.Save(ctx, a); err != nil {
 		log.Printf("error: aving admin on token expire %v\n", err)
 		return fmt.Errorf("saving admin on token expire failed")
 	}

@@ -1,23 +1,25 @@
 package main
 
+import "context"
+
 type AdminService interface {
-	SaveAdmin(SaveParams) error
-	ListAdmins() ([]Admin, error)
-	RemoveAdmin(AdminID) error
+	SaveAdmin(context.Context, SaveParams) error
+	ListAdmins(context.Context) ([]Admin, error)
+	RemoveAdmin(context.Context, AdminID) error
 }
 type AuthService interface {
-	Authenticate(AuthParams) (AuthTokenID, error)
-	Validate(AuthTokenID) error
-	Expire(AuthTokenID) error
+	Authenticate(context.Context, AuthParams) (AuthTokenID, error)
+	Validate(context.Context, AuthTokenID) error
+	Expire(context.Context, AuthTokenID) error
 }
 
 type Storage interface {
-	Save(Admin) error
-	FindAll() ([]Admin, error)
-	FindByID(AdminID) (Admin, error)
-	FindByEmail(string) (Admin, error)
-	FindByAuthTokenID(AuthTokenID) (Admin, error)
-	DeleteByID(AdminID) error
+	Save(context.Context, Admin) error
+	FindAll(context.Context) ([]Admin, error)
+	FindByID(context.Context, AdminID) (Admin, error)
+	FindByEmail(context.Context, string) (Admin, error)
+	FindByAuthTokenID(context.Context, AuthTokenID) (Admin, error)
+	DeleteByID(context.Context, AdminID) error
 }
 
 type Encryption interface {

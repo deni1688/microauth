@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"gorm.io/gorm"
 )
 
@@ -46,22 +47,22 @@ func NewPostgresStorage(db *gorm.DB) (Storage, error) {
 	return &postgresStorage{db}, nil
 }
 
-func (s postgresStorage) Save(a Admin) error {
+func (s postgresStorage) Save(ctx context.Context, a Admin) error {
 	row := fromAdmin(a)
 	if a.ID == AdminID(0) {
 		return s.Create(row).Error
 	}
 
-	return s.Model(&admin{}).Where("id = ?", a.ID).
+	return s.WithContext(ctx).Model(&admin{}).Where("id = ?", a.ID).
 		Updates(row).
 		Error
 }
 
-func (s postgresStorage) FindAll() ([]Admin, error) {
+func (s postgresStorage) FindAll(ctx context.Context) ([]Admin, error) {
 	var rows []admin
 	var admins []Admin
 
-	tx := s.Find(&rows)
+	tx := s.WithContext(ctx).Find(&rows)
 	if tx.Error != nil {
 		return admins, tx.Error
 	}
@@ -73,10 +74,10 @@ func (s postgresStorage) FindAll() ([]Admin, error) {
 	return admins, nil
 }
 
-func (s postgresStorage) FindByID(id AdminID) (Admin, error) {
+func (s postgresStorage) FindByID(ctx context.Context, id AdminID) (Admin, error) {
 	var row admin
 
-	tx := s.First(&row, id)
+	tx := s.First(ctx, &row, id)
 	if tx.Error != nil {
 		return toAdmin(&row), tx.Error
 	}
@@ -84,10 +85,10 @@ func (s postgresStorage) FindByID(id AdminID) (Admin, error) {
 	return toAdmin(&row), nil
 }
 
-func (s postgresStorage) FindByEmail(email string) (Admin, error) {
+func (s postgresStorage) FindByEmail(ctx context.Context, email string) (Admin, error) {
 	var row admin
 
-	tx := s.First(&row, "email = ?", email)
+	tx := s.WithContext(ctx).First(&row, "email = ?", email)
 	if tx.Error != nil {
 		return toAdmin(&row), tx.Error
 	}
@@ -95,10 +96,10 @@ func (s postgresStorage) FindByEmail(email string) (Admin, error) {
 	return toAdmin(&row), nil
 }
 
-func (s postgresStorage) FindByAuthTokenID(id AuthTokenID) (Admin, error) {
+func (s postgresStorage) FindByAuthTokenID(ctx context.Context, id AuthTokenID) (Admin, error) {
 	var row admin
 
-	tx := s.First(&row, "auth_token_id = ?", id)
+	tx := s.WithContext(ctx).First(&row, "auth_token_id = ?", id)
 	if tx.Error != nil {
 		return toAdmin(&row), tx.Error
 	}
@@ -106,6 +107,6 @@ func (s postgresStorage) FindByAuthTokenID(id AuthTokenID) (Admin, error) {
 	return toAdmin(&row), nil
 }
 
-func (s postgresStorage) DeleteByID(id AdminID) error {
+func (s postgresStorage) DeleteByID(ctx context.Context, id AdminID) error {
 	return s.Delete(&admin{}, id).Error
 }
