@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"time"
 )
 
 type authService struct {
@@ -28,15 +27,9 @@ func (s authService) Authenticate(ctx context.Context, r AuthParams) (AuthTokenI
 		return "", fmt.Errorf("invalid password")
 	}
 
-	id, err := s.encryption.Hash(fmt.Sprintf("%d-%d", a.ID, time.Now().Unix()))
-	if err != nil {
-		log.Printf("error: hash token id %v\n", err)
-		return "", fmt.Errorf("hash token id failed")
-	}
-
-	a.AuthToken = AuthToken{
-		ID:        AuthTokenID(id),
-		ExpiresAt: time.Now().Add(time.Hour * 24),
+	if err = a.GenerateAuthToken(); err != nil {
+		log.Printf("error: generate auth token %v\n", err)
+		return "", fmt.Errorf("generate auth token failed")
 	}
 
 	if err = s.storage.Save(ctx, a); err != nil {
@@ -58,8 +51,7 @@ func (s authService) Validate(ctx context.Context, id AuthTokenID) error {
 		return fmt.Errorf("find admin by token id failed")
 	}
 
-	if a.AuthToken.ExpiresAt.Before(time.Now()) {
-		_ = s.Expire(ctx, id)
+	if a.AuthTokenExpired() {
 		return fmt.Errorf("token expired")
 	}
 

@@ -23,12 +23,15 @@ func (s adminService) SaveAdmin(ctx context.Context, r SaveParams) error {
 		return fmt.Errorf("admin from save params failed")
 	}
 
-	if r.Password != "" && r.ID != 0 {
+	if r.Password != "" {
 		if err = a.HashPassword(s.encryption, r.Password); err != nil {
 			log.Printf("error: hash password failed %v\n", err)
 			return fmt.Errorf("admin create failed")
 		}
 
+	}
+
+	if r.ID != 0 {
 		if err = s.authService.Expire(ctx, a.AuthToken.ID); err != nil {
 			log.Printf("error: expire token on admin save failed %v\n", err)
 		}

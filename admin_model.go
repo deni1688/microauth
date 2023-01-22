@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"time"
 )
@@ -55,11 +57,29 @@ func validate(params SaveParams) error {
 func (a *Admin) HashPassword(encryption Encryption, password string) error {
 	hash, err := encryption.Hash(password)
 	if err != nil {
-		return fmt.Errorf("hash password failed")
+		return fmt.Errorf("hash password failed %v", err)
 	}
 
 	a.PasswordHash = hash
 	return nil
+}
+
+func (a *Admin) GenerateAuthToken() error {
+	h := sha256.New()
+	if _, err := h.Write([]byte(fmt.Sprintf("%d-%d", a.ID, time.Now().Unix()))); err != nil {
+		return fmt.Errorf("sha256 write for token id failed %v", err)
+	}
+
+	a.AuthToken = AuthToken{
+		ID:        AuthTokenID(hex.EncodeToString(h.Sum(nil))),
+		ExpiresAt: time.Now().Add(24 * time.Hour),
+	}
+
+	return nil
+}
+
+func (a *Admin) AuthTokenExpired() bool {
+	return a.AuthToken.ExpiresAt.Before(time.Now())
 }
 
 func (a *Admin) ExpireAuthToken() {
