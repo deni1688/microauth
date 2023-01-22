@@ -20,14 +20,12 @@ type admin struct {
 
 func toAdmin(a *admin) Admin {
 	return Admin{
-		ID: AdminID(a.ID),
-		AdminBase: AdminBase{
-			Firstname:    a.Firstname,
-			Lastname:     a.Lastname,
-			Email:        a.Email,
-			PasswordHash: a.Password,
-		},
-		AuthToken: a.AuthToken,
+		ID:           AdminID(a.ID),
+		Firstname:    a.Firstname,
+		Lastname:     a.Lastname,
+		Email:        a.Email,
+		PasswordHash: a.Password,
+		AuthToken:    a.AuthToken,
 	}
 }
 

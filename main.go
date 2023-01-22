@@ -15,15 +15,13 @@ func main() {
 	bc := BcryptEncryption{}
 
 	authSrv := NewAuthService(ps, bc)
-	adminSrv := NewAdminService(ps, bc)
+	adminSrv := NewAdminService(ps, bc, authSrv)
 
-	_ = adminSrv.SaveAdmin(SaveRequest{
-		AdminBase: AdminBase{
-			Firstname:    "admin",
-			Lastname:     "admin",
-			Email:        "admin@test.com",
-			PasswordHash: "admin",
-		},
+	_ = adminSrv.SaveAdmin(SaveAdminParams{
+		Firstname: "admin",
+		Lastname:  "admin",
+		Email:     "admin@test.com",
+		Password:  "admin",
 	})
 
 	adminH := NewAdminHandler(adminSrv)

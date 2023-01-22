@@ -15,7 +15,7 @@ func NewAuthService(s Storage, e Encryption) AuthService {
 	return &authService{storage: s, encryption: e}
 }
 
-func (s authService) Authenticate(r AuthRequest) (AuthTokenID, error) {
+func (s authService) Authenticate(r AuthParams) (AuthTokenID, error) {
 	a, err := s.storage.FindByEmail(r.Email)
 	if err != nil {
 		log.Printf("error: find admin by email %v\n", err)
@@ -58,14 +58,14 @@ func (s authService) Validate(id AuthTokenID) error {
 	}
 
 	if a.AuthToken.ExpiresAt.Before(time.Now()) {
-		s.Invalidate(id)
+		_ = s.Expire(id)
 		return fmt.Errorf("token expired")
 	}
 
 	return nil
 }
 
-func (s authService) Invalidate(id AuthTokenID) error {
+func (s authService) Expire(id AuthTokenID) error {
 	a, err := s.storage.FindByAuthTokenID(id)
 	if err != nil {
 		log.Printf("error: find admin by token id %v\n", err)

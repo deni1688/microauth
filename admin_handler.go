@@ -6,15 +6,15 @@ import (
 	"strconv"
 )
 
-type adminHandler struct {
+type AdminHandler struct {
 	service AdminService
 }
 
-func NewAdminHandler(s AdminService) *adminHandler {
-	return &adminHandler{service: s}
+func NewAdminHandler(s AdminService) *AdminHandler {
+	return &AdminHandler{service: s}
 }
 
-func (h adminHandler) HandleGetAdmins(c echo.Context) error {
+func (h AdminHandler) HandleGetAdmins(c echo.Context) error {
 	list, err := h.service.ListAdmins()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
@@ -23,8 +23,8 @@ func (h adminHandler) HandleGetAdmins(c echo.Context) error {
 	return c.JSON(http.StatusOK, list)
 }
 
-func (h adminHandler) HandleSaveAdmin(c echo.Context) error {
-	var r SaveRequest
+func (h AdminHandler) HandleSaveAdmin(c echo.Context) error {
+	var r SaveAdminParams
 
 	if err := c.Bind(&r); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
@@ -37,7 +37,7 @@ func (h adminHandler) HandleSaveAdmin(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{"message": "admin saved"})
 }
 
-func (h adminHandler) HandleDeleteAdmin(c echo.Context) error {
+func (h AdminHandler) HandleDeleteAdmin(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})

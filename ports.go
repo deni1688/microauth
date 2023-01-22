@@ -1,14 +1,14 @@
 package main
 
 type AdminService interface {
-	SaveAdmin(SaveRequest) error
+	SaveAdmin(SaveAdminParams) error
 	ListAdmins() ([]Admin, error)
 	RemoveAdmin(AdminID) error
 }
 type AuthService interface {
-	Authenticate(AuthRequest) (AuthTokenID, error)
+	Authenticate(AuthParams) (AuthTokenID, error)
 	Validate(AuthTokenID) error
-	Invalidate(AuthTokenID) error
+	Expire(AuthTokenID) error
 }
 
 type Storage interface {
@@ -21,6 +21,6 @@ type Storage interface {
 }
 
 type Encryption interface {
-	Hash(password string) (string, error)
-	Compare(password string, hash string) bool
+	Hash(string) (string, error)
+	Compare(password, hash string) bool
 }

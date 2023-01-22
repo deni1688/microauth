@@ -11,21 +11,19 @@ type adminService struct {
 	encryption  Encryption
 }
 
-func NewAdminService(s Storage, e Encryption) AdminService {
-	return &adminService{storage: s, encryption: e}
+func NewAdminService(s Storage, e Encryption, as AuthService) AdminService {
+	return &adminService{storage: s, encryption: e, authService: as}
 }
 
-func (s adminService) SaveAdmin(r SaveRequest) error {
+func (s adminService) SaveAdmin(r SaveAdminParams) error {
 	a := Admin{
-		ID: r.ID,
-		AdminBase: AdminBase{
-			Firstname: r.Firstname,
-			Lastname:  r.Lastname,
-			Email:     r.Email,
-		},
+		ID:        r.ID,
+		Firstname: r.Firstname,
+		Lastname:  r.Lastname,
+		Email:     r.Email,
 	}
 
-	if r.Password != "" {
+	if r.Password != "" && r.ID != 0 {
 		hash, err := s.encryption.Hash(r.Password)
 		if err != nil {
 			log.Printf("error: hash password failed %v\n", err)
@@ -33,6 +31,9 @@ func (s adminService) SaveAdmin(r SaveRequest) error {
 		}
 
 		a.PasswordHash = hash
+		if err := s.authService.Expire(a.AuthToken.ID); err != nil {
+			log.Printf("error: expire token on admin save failed %v\n", err)
+		}
 	}
 
 	if err := s.storage.Save(a); err != nil {

@@ -5,16 +5,16 @@ import (
 	"net/http"
 )
 
-type authHandler struct {
+type AuthHandler struct {
 	service AuthService
 }
 
-func NewAuthHandler(s AuthService) *authHandler {
-	return &authHandler{service: s}
+func NewAuthHandler(s AuthService) *AuthHandler {
+	return &AuthHandler{service: s}
 }
 
-func (h authHandler) HandleLogin(c echo.Context) error {
-	var r AuthRequest
+func (h AuthHandler) HandleLogin(c echo.Context) error {
+	var r AuthParams
 
 	if err := c.Bind(&r); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
@@ -28,9 +28,9 @@ func (h authHandler) HandleLogin(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{"token": t})
 }
 
-func (h authHandler) HandleLogout(c echo.Context) error {
+func (h AuthHandler) HandleLogout(c echo.Context) error {
 	id := AuthTokenID(c.Request().Header.Get("Authorization"))
-	if err := h.service.Invalidate(id); err != nil {
+	if err := h.service.Expire(id); err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
 	}
 
