@@ -15,22 +15,19 @@ func NewAdminService(s Storage, e Encryption, as AuthService) AdminService {
 	return &adminService{storage: s, encryption: e, authService: as}
 }
 
-func (s adminService) SaveAdmin(r SaveAdminParams) error {
-	a := Admin{
-		ID:        r.ID,
-		Firstname: r.Firstname,
-		Lastname:  r.Lastname,
-		Email:     r.Email,
+func (s adminService) SaveAdmin(r SaveParams) error {
+	a, err := NewAdmin(r)
+	if err != nil {
+		log.Printf("error: admin from save params %v\n", err)
+		return fmt.Errorf("admin from save params failed")
 	}
 
 	if r.Password != "" && r.ID != 0 {
-		hash, err := s.encryption.Hash(r.Password)
-		if err != nil {
+		if err := a.HashPassword(s.encryption, r.Password); err != nil {
 			log.Printf("error: hash password failed %v\n", err)
 			return fmt.Errorf("admin create failed")
 		}
 
-		a.PasswordHash = hash
 		if err := s.authService.Expire(a.AuthToken.ID); err != nil {
 			log.Printf("error: expire token on admin save failed %v\n", err)
 		}

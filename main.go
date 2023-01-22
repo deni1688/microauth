@@ -17,7 +17,7 @@ func main() {
 	authSrv := NewAuthService(ps, bc)
 	adminSrv := NewAdminService(ps, bc, authSrv)
 
-	_ = adminSrv.SaveAdmin(SaveAdminParams{
+	_ = adminSrv.SaveAdmin(SaveParams{
 		Firstname: "admin",
 		Lastname:  "admin",
 		Email:     "admin@test.com",

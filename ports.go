@@ -1,7 +1,7 @@
 package main
 
 type AdminService interface {
-	SaveAdmin(SaveAdminParams) error
+	SaveAdmin(SaveParams) error
 	ListAdmins() ([]Admin, error)
 	RemoveAdmin(AdminID) error
 }

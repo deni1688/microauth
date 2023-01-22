@@ -24,7 +24,7 @@ func (h AdminHandler) HandleGetAdmins(c echo.Context) error {
 }
 
 func (h AdminHandler) HandleSaveAdmin(c echo.Context) error {
-	var r SaveAdminParams
+	var r SaveParams
 
 	if err := c.Bind(&r); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})

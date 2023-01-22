@@ -72,11 +72,10 @@ func (s authService) Expire(id AuthTokenID) error {
 		return fmt.Errorf("find admin by token id failed")
 	}
 
-	a.AuthToken = AuthToken{ID: "-", ExpiresAt: time.Now().Add(-(time.Hour * 24))}
-
+	a.ExpireAuthToken()
 	if err = s.storage.Save(a); err != nil {
-		log.Printf("error: invalidate token %v\n", err)
-		return fmt.Errorf("invalidate token failed")
+		log.Printf("error: aving admin on token expire %v\n", err)
+		return fmt.Errorf("saving admin on token expire failed")
 	}
 
 	return nil
