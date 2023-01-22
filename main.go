@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"gorm.io/driver/postgres"
@@ -20,7 +21,7 @@ func main() {
 	authSrv := NewAuthService(ps, bc)
 	adminSrv := NewAdminService(ps, bc, authSrv)
 
-	if err = adminSrv.SaveAdmin(SaveParams{
+	if err = adminSrv.SaveAdmin(context.Background(), SaveParams{
 		Firstname: cf.DefaultAdminFirstname,
 		Lastname:  cf.DefaultAdminLastname,
 		Email:     cf.DefaultAdminEmail,

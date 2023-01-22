@@ -108,5 +108,5 @@ func (s postgresStorage) FindByAuthTokenID(ctx context.Context, id AuthTokenID) 
 }
 
 func (s postgresStorage) DeleteByID(ctx context.Context, id AdminID) error {
-	return s.Delete(&admin{}, id).Error
+	return s.WithContext(ctx).Delete(&admin{}, id).Error
 }
