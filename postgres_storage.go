@@ -13,7 +13,7 @@ type admin struct {
 	gorm.Model
 	Firstname string
 	Lastname  string
-	Email     string
+	Email     string `gorm:"unique"`
 	Password  string
 	AuthToken AuthToken `gorm:"embedded;embeddedPrefix:auth_token_"`
 }
