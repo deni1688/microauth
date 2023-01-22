@@ -2,7 +2,6 @@ package main
 
 import (
 	"gorm.io/gorm"
-	"log"
 )
 
 type postgresStorage struct {
@@ -39,12 +38,12 @@ func fromAdmin(a Admin) *admin {
 	}
 }
 
-func MustNewPostgresStorage(db *gorm.DB) Storage {
+func NewPostgresStorage(db *gorm.DB) (Storage, error) {
 	if err := db.AutoMigrate(&admin{}); err != nil {
-		log.Fatalf("failed to migrate admin table: %v", err)
+		return nil, err
 	}
 
-	return &postgresStorage{db}
+	return &postgresStorage{db}, nil
 }
 
 func (s postgresStorage) Save(a Admin) error {

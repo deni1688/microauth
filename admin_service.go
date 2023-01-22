@@ -23,17 +23,17 @@ func (s adminService) SaveAdmin(r SaveParams) error {
 	}
 
 	if r.Password != "" && r.ID != 0 {
-		if err := a.HashPassword(s.encryption, r.Password); err != nil {
+		if err = a.HashPassword(s.encryption, r.Password); err != nil {
 			log.Printf("error: hash password failed %v\n", err)
 			return fmt.Errorf("admin create failed")
 		}
 
-		if err := s.authService.Expire(a.AuthToken.ID); err != nil {
+		if err = s.authService.Expire(a.AuthToken.ID); err != nil {
 			log.Printf("error: expire token on admin save failed %v\n", err)
 		}
 	}
 
-	if err := s.storage.Save(a); err != nil {
+	if err = s.storage.Save(a); err != nil {
 		log.Printf("error: save admin %v\n", err)
 		return fmt.Errorf("save admin failed")
 	}

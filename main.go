@@ -6,23 +6,28 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
-	"os"
 )
 
 func main() {
-	db := mustConnectDB()
-	ps := MustNewPostgresStorage(db)
+	cf := loadConfig()
+	db := mustConnectDB(cf)
+	ps, err := NewPostgresStorage(db)
+	if err != nil {
+		log.Fatalf("Failed to create storage: %v", err)
+	}
 	bc := BcryptEncryption{}
 
 	authSrv := NewAuthService(ps, bc)
 	adminSrv := NewAdminService(ps, bc, authSrv)
 
-	_ = adminSrv.SaveAdmin(SaveParams{
-		Firstname: "admin",
-		Lastname:  "admin",
-		Email:     "admin@test.com",
-		Password:  "admin",
-	})
+	if err = adminSrv.SaveAdmin(SaveParams{
+		Firstname: cf.DefaultAdminFirstname,
+		Lastname:  cf.DefaultAdminLastname,
+		Email:     cf.DefaultAdminEmail,
+		Password:  cf.DefaultAdminPassword,
+	}); err != nil {
+		log.Fatalf("Failed to create default admin: %v", err)
+	}
 
 	adminH := NewAdminHandler(adminSrv)
 	authH := NewAuthHandler(authSrv)
@@ -45,7 +50,7 @@ func main() {
 	e.Logger.Fatal(e.Start(":9876"))
 }
 
-func mustConnectDB() *gorm.DB {
+func mustConnectDB(cf *config) *gorm.DB {
 	db, err := gorm.Open(postgres.Open(fmt.Sprintf(`
 	host=%s
 	user=%s
@@ -54,13 +59,13 @@ func mustConnectDB() *gorm.DB {
 	port=%s
 	sslmode=%s
 	TimeZone=%s`,
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASS"),
-		os.Getenv("DB_NAME"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_SSL_MODE"),
-		os.Getenv("DB_TIMEZONE"),
+		cf.PostgresHost,
+		cf.PostgresUser,
+		cf.PostgresPassword,
+		cf.PostgresDBName,
+		cf.PostgresPort,
+		cf.PostgresSSLMode,
+		cf.PostgresTimezone,
 	)), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)

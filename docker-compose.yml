@@ -22,6 +22,10 @@ services:
       DB_PORT: 5432
       DB_SSL_MODE: disable
       DB_TIMEZONE: UTC
+      ADMIN_FIRSTNAME: root
+      ADMIN_LASTNAME: root
+      ADMIN_EMAIL: root@mail.com
+      ADMIN_PASSWORD: root
     ports:
       - "9876:9876"
     depends_on:
@@ -29,7 +33,6 @@ services:
     restart: unless-stopped
     networks:
       - microauth_net
-
 
 networks:
   microauth_net:
