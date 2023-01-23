@@ -16,10 +16,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to create storage: %v", err)
 	}
-	bc := BcryptHasher{}
+	bh := BcryptHasher{}
 
-	authSrv := NewAuthService(ps, bc)
-	adminSrv := NewAdminService(ps, bc, authSrv)
+	authSrv := NewAuthService(ps, bh)
+	adminSrv := NewAdminService(ps, bh, authSrv)
 
 	mustCreateDefaultAdmin(cf, ps, adminSrv)
 

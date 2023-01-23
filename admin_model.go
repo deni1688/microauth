@@ -55,8 +55,8 @@ func validate(params SaveParams) error {
 	return nil
 }
 
-func (a *Admin) HashPassword(encryption Hasher, password string) error {
-	hash, err := encryption.Hash(password)
+func (a *Admin) HashPassword(hasher Hasher, password string) error {
+	hash, err := hasher.Hash(password)
 	if err != nil {
 		return fmt.Errorf("hash password failed %v", err)
 	}
