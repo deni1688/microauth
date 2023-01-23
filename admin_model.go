@@ -67,7 +67,7 @@ func (a *Admin) HashPassword(encryption Hasher, password string) error {
 
 func (a *Admin) GenerateAuthToken() error {
 	h := sha256.New()
-	if _, err := h.Write([]byte(fmt.Sprintf("%d-%s", a.ID, randString()))); err != nil {
+	if _, err := h.Write([]byte(fmt.Sprintf("%d-%s", time.Now().Unix(), randString()))); err != nil {
 		return fmt.Errorf("sha256 write for token id failed %v", err)
 	}
 
