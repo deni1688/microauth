@@ -7,12 +7,12 @@ import (
 )
 
 type authService struct {
-	storage    Storage
-	encryption Encryption
+	storage Storage
+	hasher  Hasher
 }
 
-func NewAuthService(s Storage, e Encryption) AuthService {
-	return &authService{storage: s, encryption: e}
+func NewAuthService(s Storage, e Hasher) AuthService {
+	return &authService{storage: s, hasher: e}
 }
 
 func (s authService) Authenticate(ctx context.Context, r AuthParams) (AuthTokenID, error) {
@@ -22,7 +22,7 @@ func (s authService) Authenticate(ctx context.Context, r AuthParams) (AuthTokenI
 		return "", fmt.Errorf("find admin by email failed")
 	}
 
-	if !s.encryption.Compare(r.Password, a.PasswordHash) {
+	if !s.hasher.Compare(r.Password, a.PasswordHash) {
 		log.Println("error: invalid password")
 		return "", fmt.Errorf("invalid password")
 	}

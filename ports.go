@@ -22,7 +22,7 @@ type Storage interface {
 	DeleteByID(context.Context, AdminID) error
 }
 
-type Encryption interface {
+type Hasher interface {
 	Hash(string) (string, error)
 	Compare(password, hash string) bool
 }

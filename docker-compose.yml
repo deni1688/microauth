@@ -25,7 +25,7 @@ services:
       ADMIN_FIRSTNAME: root
       ADMIN_LASTNAME: root
       ADMIN_EMAIL: root@mail.com
-      ADMIN_PASSWORD: root
+      ADMIN_PASSWORD: root1234
     ports:
       - "9876:9876"
     depends_on:

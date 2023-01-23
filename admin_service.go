@@ -9,10 +9,10 @@ import (
 type adminService struct {
 	storage     Storage
 	authService AuthService
-	encryption  Encryption
+	encryption  Hasher
 }
 
-func NewAdminService(s Storage, e Encryption, as AuthService) AdminService {
+func NewAdminService(s Storage, e Hasher, as AuthService) AdminService {
 	return &adminService{storage: s, encryption: e, authService: as}
 }
 
