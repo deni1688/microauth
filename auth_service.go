@@ -11,8 +11,8 @@ type authService struct {
 	hasher  Hasher
 }
 
-func NewAuthService(s Storage, e Hasher) AuthService {
-	return &authService{storage: s, hasher: e}
+func NewAuthService(s Storage, h Hasher) AuthService {
+	return &authService{storage: s, hasher: h}
 }
 
 func (s authService) Authenticate(ctx context.Context, r AuthParams) (AuthTokenID, error) {

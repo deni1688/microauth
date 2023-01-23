@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"math/rand"
 	"time"
 )
 
@@ -66,7 +67,7 @@ func (a *Admin) HashPassword(encryption Hasher, password string) error {
 
 func (a *Admin) GenerateAuthToken() error {
 	h := sha256.New()
-	if _, err := h.Write([]byte(fmt.Sprintf("%d-%d", a.ID, time.Now().Unix()))); err != nil {
+	if _, err := h.Write([]byte(fmt.Sprintf("%d-%s", a.ID, randString()))); err != nil {
 		return fmt.Errorf("sha256 write for token id failed %v", err)
 	}
 
@@ -84,4 +85,15 @@ func (a *Admin) AuthTokenExpired() bool {
 
 func (a *Admin) ExpireAuthToken() {
 	a.AuthToken = AuthToken{ID: "-", ExpiresAt: time.Now().Add(-(time.Hour * 24))}
+}
+
+const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+func randString() string {
+	seededRand := rand.New(rand.NewSource(time.Now().UnixNano()))
+	b := make([]byte, 12)
+	for i := range b {
+		b[i] = charset[seededRand.Intn(len(charset))]
+	}
+	return string(b)
 }

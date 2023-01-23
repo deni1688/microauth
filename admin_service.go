@@ -9,11 +9,11 @@ import (
 type adminService struct {
 	storage     Storage
 	authService AuthService
-	encryption  Hasher
+	hasher      Hasher
 }
 
-func NewAdminService(s Storage, e Hasher, as AuthService) AdminService {
-	return &adminService{storage: s, encryption: e, authService: as}
+func NewAdminService(s Storage, h Hasher, as AuthService) AdminService {
+	return &adminService{storage: s, hasher: h, authService: as}
 }
 
 func (s adminService) SaveAdmin(ctx context.Context, r SaveParams) error {
@@ -23,7 +23,7 @@ func (s adminService) SaveAdmin(ctx context.Context, r SaveParams) error {
 		return fmt.Errorf("admin from save params failed")
 	}
 
-	if r.Password != "" && a.HashPassword(s.encryption, r.Password) != nil {
+	if r.Password != "" && a.HashPassword(s.hasher, r.Password) != nil {
 		return fmt.Errorf("hash password failed")
 	}
 
