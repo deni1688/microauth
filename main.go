@@ -21,14 +21,7 @@ func main() {
 	authSrv := NewAuthService(ps, bc)
 	adminSrv := NewAdminService(ps, bc, authSrv)
 
-	if err = adminSrv.SaveAdmin(context.Background(), SaveParams{
-		Firstname: cf.DefaultAdminFirstname,
-		Lastname:  cf.DefaultAdminLastname,
-		Email:     cf.DefaultAdminEmail,
-		Password:  cf.DefaultAdminPassword,
-	}); err != nil {
-		log.Fatalf("Failed to create default admin: %v", err)
-	}
+	mustCreateDefaultAdmin(cf, ps, adminSrv)
 
 	adminH := NewAdminHandler(adminSrv)
 	authH := NewAuthHandler(authSrv)
@@ -73,4 +66,22 @@ func mustConnectDB(cf *config) *gorm.DB {
 	}
 
 	return db
+}
+
+func mustCreateDefaultAdmin(cf *config, s Storage, as AdminService) {
+	ctx := context.Background()
+	_, err := s.FindByEmail(ctx, cf.DefaultAdminEmail)
+	if err == nil {
+		log.Println("Skipping default admin creation")
+		return
+	}
+
+	if err = as.SaveAdmin(ctx, SaveParams{
+		Firstname: cf.DefaultAdminFirstname,
+		Lastname:  cf.DefaultAdminLastname,
+		Email:     cf.DefaultAdminEmail,
+		Password:  cf.DefaultAdminPassword,
+	}); err != nil {
+		log.Fatalf("Failed to create default admin: %v", err)
+	}
 }
