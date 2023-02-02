@@ -34,5 +34,5 @@ func (h AuthHandler) HandleLogout(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{"message": "logout success"})
+	return c.JSON(http.StatusOK, echo.Map{"message": "logout successful"})
 }
