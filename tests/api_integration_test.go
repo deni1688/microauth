@@ -11,7 +11,7 @@ import (
 func TestApi(t *testing.T) {
 	token := ""
 
-	t.Run("Login - POST /api/v1/login", func(t *testing.T) {
+	t.Run("Login - POST /rest/v1/login", func(t *testing.T) {
 		token = getToken(t)
 
 		if token == "" {
@@ -23,7 +23,7 @@ func TestApi(t *testing.T) {
 		}
 	})
 
-	t.Run("Create Admin - POST /api/v1/dashboard/admins", func(t *testing.T) {
+	t.Run("Create Admin - POST /rest/v1/dashboard/admins", func(t *testing.T) {
 		payload := `{"email": "mike.jones@mail.com", "password": "who281330", "firstname": "Mike", "lastname": "Jones"}`
 		req, err := http.NewRequest(http.MethodPost, "http://localhost:9876/api/v1/dashboard/admins", strings.NewReader(payload))
 		if err != nil {
@@ -57,12 +57,12 @@ func TestApi(t *testing.T) {
 			t.Fatalf("expected no error, got '%s'", result["error"])
 		}
 
-		if result["message"] != "admin saved" {
-			t.Fatalf("expected message 'admin saved', got '%s'", result["message"])
+		if result["message"] != "core saved" {
+			t.Fatalf("expected message 'core saved', got '%s'", result["message"])
 		}
 	})
 
-	t.Run("Get Admins - GET /api/v1/dashboard/admins", func(t *testing.T) {
+	t.Run("Get Admins - GET /rest/v1/dashboard/admins", func(t *testing.T) {
 		req, err := http.NewRequest(http.MethodGet, "http://localhost:9876/api/v1/dashboard/admins", nil)
 		if err != nil {
 			t.Fatal(err)
@@ -91,11 +91,11 @@ func TestApi(t *testing.T) {
 		}
 
 		if len(result) != 2 {
-			t.Fatalf("expected 2 admin, got %d", len(result))
+			t.Fatalf("expected 2 core, got %d", len(result))
 		}
 	})
 
-	t.Run("Update Admin - POST /api/v1/dashboard/admins", func(t *testing.T) {
+	t.Run("Update Admin - POST /rest/v1/dashboard/admins", func(t *testing.T) {
 		payload := `{"id": 2, "email": "mike-jones@mail.com", "firstname": "Michael", "lastname": "Jones"}`
 		req, err := http.NewRequest(http.MethodPost, "http://localhost:9876/api/v1/dashboard/admins", strings.NewReader(payload))
 		if err != nil {
@@ -129,12 +129,12 @@ func TestApi(t *testing.T) {
 			t.Fatalf("expected no error, got '%s'", result["error"])
 		}
 
-		if result["message"] != "admin saved" {
-			t.Fatalf("expected message 'admin saved', got '%s'", result["message"])
+		if result["message"] != "core saved" {
+			t.Fatalf("expected message 'core saved', got '%s'", result["message"])
 		}
 	})
 
-	t.Run("Delete Admin - DELETE /api/v1/dashboard/admins/:id", func(t *testing.T) {
+	t.Run("Delete Admin - DELETE /rest/v1/dashboard/admins/:id", func(t *testing.T) {
 		req, err := http.NewRequest(http.MethodDelete, "http://localhost:9876/api/v1/dashboard/admins/2", nil)
 		if err != nil {
 			t.Fatal(err)
@@ -166,12 +166,12 @@ func TestApi(t *testing.T) {
 			t.Fatalf("expected no error, got '%s'", result["error"])
 		}
 
-		if result["message"] != "admin deleted" {
-			t.Fatalf("expected message 'admin deleted', got '%s'", result["message"])
+		if result["message"] != "core deleted" {
+			t.Fatalf("expected message 'core deleted', got '%s'", result["message"])
 		}
 	})
 
-	t.Run("Logout - POST /api/v1/logout", func(t *testing.T) {
+	t.Run("Logout - POST /rest/v1/logout", func(t *testing.T) {
 		req, err := http.NewRequest(http.MethodPost, "http://localhost:9876/api/v1/logout", nil)
 		if err != nil {
 			t.Fatal(err)
@@ -208,7 +208,7 @@ func TestApi(t *testing.T) {
 		}
 	})
 
-	t.Run("Get Admins with Invalid Token - GET /api/v1/dashboard/admins", func(t *testing.T) {
+	t.Run("Get Admins with Invalid Token - GET /rest/v1/dashboard/admins", func(t *testing.T) {
 		req, err := http.NewRequest(http.MethodGet, "http://localhost:9876/api/v1/dashboard/admins", nil)
 		if err != nil {
 			t.Fatal(err)

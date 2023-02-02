@@ -1,16 +1,17 @@
-package main
+package rest
 
 import (
 	"github.com/labstack/echo/v4"
+	"microauth/core"
 	"net/http"
 	"strconv"
 )
 
 type AdminHandler struct {
-	service AdminService
+	service core.AdminService
 }
 
-func NewAdminHandler(s AdminService) *AdminHandler {
+func NewAdminHandler(s core.AdminService) *AdminHandler {
 	return &AdminHandler{service: s}
 }
 
@@ -24,7 +25,7 @@ func (h AdminHandler) HandleGetAdmins(c echo.Context) error {
 }
 
 func (h AdminHandler) HandleSaveAdmin(c echo.Context) error {
-	var r SaveParams
+	var r core.SaveParams
 
 	if err := c.Bind(&r); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
@@ -34,7 +35,7 @@ func (h AdminHandler) HandleSaveAdmin(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{"message": "admin saved"})
+	return c.JSON(http.StatusOK, echo.Map{"message": "core saved"})
 }
 
 func (h AdminHandler) HandleDeleteAdmin(c echo.Context) error {
@@ -43,9 +44,9 @@ func (h AdminHandler) HandleDeleteAdmin(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
 
-	if err := h.service.RemoveAdmin(c.Request().Context(), AdminID(id)); err != nil {
+	if err := h.service.RemoveAdmin(c.Request().Context(), core.AdminID(id)); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{"message": "admin deleted"})
+	return c.JSON(http.StatusOK, echo.Map{"message": "core deleted"})
 }

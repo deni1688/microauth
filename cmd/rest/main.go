@@ -7,25 +7,28 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
+	"microauth/core"
+	"microauth/infra"
+	"microauth/rest"
 )
 
 func main() {
 	cf := loadConfig()
 	db := mustConnectDB(cf)
-	ps, err := NewPostgresStorage(db)
+	ps, err := infra.NewPostgresStorage(db)
 	if err != nil {
-		log.Fatalf("Failed to create storage: %v", err)
+		log.Fatalf("Failed to create postgres: %v", err)
 	}
-	bh := BcryptHasher{}
+	bh := infra.BcryptHasher{}
 
-	authSrv := NewAuthService(ps, bh)
-	adminSrv := NewAdminService(ps, bh, authSrv)
+	authSrv := core.NewAuthService(ps, bh)
+	adminSrv := core.NewAdminService(ps, bh, authSrv)
 
 	mustCreateDefaultAdmin(cf, ps, adminSrv)
 
-	adminH := NewAdminHandler(adminSrv)
-	authH := NewAuthHandler(authSrv)
-	authM := NewAuthMiddleware(authSrv)
+	adminH := rest.NewAdminHandler(adminSrv)
+	authH := rest.NewAuthHandler(authSrv)
+	authM := rest.NewAuthMiddleware(authSrv)
 
 	e := echo.New()
 
@@ -68,20 +71,20 @@ func mustConnectDB(cf *config) *gorm.DB {
 	return db
 }
 
-func mustCreateDefaultAdmin(cf *config, s Storage, as AdminService) {
+func mustCreateDefaultAdmin(cf *config, s core.Storage, as core.AdminService) {
 	ctx := context.Background()
 	_, err := s.FindByEmail(ctx, cf.DefaultAdminEmail)
 	if err == nil {
-		log.Println("Skipping default admin creation")
+		log.Println("Skipping default core creation")
 		return
 	}
 
-	if err = as.SaveAdmin(ctx, SaveParams{
+	if err = as.SaveAdmin(ctx, core.SaveParams{
 		Firstname: cf.DefaultAdminFirstname,
 		Lastname:  cf.DefaultAdminLastname,
 		Email:     cf.DefaultAdminEmail,
 		Password:  cf.DefaultAdminPassword,
 	}); err != nil {
-		log.Fatalf("Failed to create default admin: %v", err)
+		log.Fatalf("Failed to create default core: %v", err)
 	}
 }

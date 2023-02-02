@@ -1,6 +1,8 @@
-package main
+package core
 
-import "context"
+import (
+	"context"
+)
 
 type AdminService interface {
 	SaveAdmin(context.Context, SaveParams) error

@@ -1,8 +1,9 @@
-package main
+package infra
 
 import (
 	"context"
 	"gorm.io/gorm"
+	"microauth/core"
 )
 
 type postgresStorage struct {
@@ -15,12 +16,12 @@ type admin struct {
 	Lastname  string
 	Email     string `gorm:"unique"`
 	Password  string
-	AuthToken AuthToken `gorm:"embedded;embeddedPrefix:auth_token_"`
+	AuthToken core.AuthToken `gorm:"embedded;embeddedPrefix:auth_token_"`
 }
 
-func toAdmin(a *admin) Admin {
-	return Admin{
-		ID:           AdminID(a.ID),
+func toAdmin(a *admin) core.Admin {
+	return core.Admin{
+		ID:           core.AdminID(a.ID),
 		Firstname:    a.Firstname,
 		Lastname:     a.Lastname,
 		Email:        a.Email,
@@ -29,7 +30,7 @@ func toAdmin(a *admin) Admin {
 	}
 }
 
-func fromAdmin(a Admin) *admin {
+func fromAdmin(a core.Admin) *admin {
 	return &admin{
 		Firstname: a.Firstname,
 		Lastname:  a.Lastname,
@@ -39,7 +40,7 @@ func fromAdmin(a Admin) *admin {
 	}
 }
 
-func NewPostgresStorage(db *gorm.DB) (Storage, error) {
+func NewPostgresStorage(db *gorm.DB) (core.Storage, error) {
 	if err := db.AutoMigrate(&admin{}); err != nil {
 		return nil, err
 	}
@@ -47,9 +48,9 @@ func NewPostgresStorage(db *gorm.DB) (Storage, error) {
 	return &postgresStorage{db}, nil
 }
 
-func (s postgresStorage) Save(ctx context.Context, a Admin) error {
+func (s postgresStorage) Save(ctx context.Context, a core.Admin) error {
 	row := fromAdmin(a)
-	if a.ID == AdminID(0) {
+	if a.ID == core.AdminID(0) {
 		return s.Create(row).Error
 	}
 
@@ -58,9 +59,9 @@ func (s postgresStorage) Save(ctx context.Context, a Admin) error {
 		Error
 }
 
-func (s postgresStorage) FindAll(ctx context.Context) ([]Admin, error) {
+func (s postgresStorage) FindAll(ctx context.Context) ([]core.Admin, error) {
 	var rows []admin
-	var admins []Admin
+	var admins []core.Admin
 
 	tx := s.WithContext(ctx).Find(&rows)
 	if tx.Error != nil {
@@ -74,7 +75,7 @@ func (s postgresStorage) FindAll(ctx context.Context) ([]Admin, error) {
 	return admins, nil
 }
 
-func (s postgresStorage) FindByID(ctx context.Context, id AdminID) (Admin, error) {
+func (s postgresStorage) FindByID(ctx context.Context, id core.AdminID) (core.Admin, error) {
 	var row admin
 
 	tx := s.First(ctx, &row, id)
@@ -85,7 +86,7 @@ func (s postgresStorage) FindByID(ctx context.Context, id AdminID) (Admin, error
 	return toAdmin(&row), nil
 }
 
-func (s postgresStorage) FindByEmail(ctx context.Context, email string) (Admin, error) {
+func (s postgresStorage) FindByEmail(ctx context.Context, email string) (core.Admin, error) {
 	var row admin
 
 	tx := s.WithContext(ctx).First(&row, "email = ?", email)
@@ -96,7 +97,7 @@ func (s postgresStorage) FindByEmail(ctx context.Context, email string) (Admin, 
 	return toAdmin(&row), nil
 }
 
-func (s postgresStorage) FindByAuthTokenID(ctx context.Context, id AuthTokenID) (Admin, error) {
+func (s postgresStorage) FindByAuthTokenID(ctx context.Context, id core.AuthTokenID) (core.Admin, error) {
 	var row admin
 
 	tx := s.WithContext(ctx).First(&row, "auth_token_id = ?", id)
@@ -107,6 +108,6 @@ func (s postgresStorage) FindByAuthTokenID(ctx context.Context, id AuthTokenID) 
 	return toAdmin(&row), nil
 }
 
-func (s postgresStorage) DeleteByID(ctx context.Context, id AdminID) error {
+func (s postgresStorage) DeleteByID(ctx context.Context, id core.AdminID) error {
 	return s.WithContext(ctx).Delete(&admin{}, id).Error
 }

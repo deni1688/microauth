@@ -1,20 +1,21 @@
-package main
+package rest
 
 import (
 	"github.com/labstack/echo/v4"
+	"microauth/core"
 	"net/http"
 )
 
 type AuthHandler struct {
-	service AuthService
+	service core.AuthService
 }
 
-func NewAuthHandler(s AuthService) *AuthHandler {
+func NewAuthHandler(s core.AuthService) *AuthHandler {
 	return &AuthHandler{service: s}
 }
 
 func (h AuthHandler) HandleLogin(c echo.Context) error {
-	var r AuthParams
+	var r core.AuthParams
 
 	if err := c.Bind(&r); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
@@ -29,7 +30,7 @@ func (h AuthHandler) HandleLogin(c echo.Context) error {
 }
 
 func (h AuthHandler) HandleLogout(c echo.Context) error {
-	id := AuthTokenID(c.Request().Header.Get("Authorization"))
+	id := core.AuthTokenID(c.Request().Header.Get("Authorization"))
 	if err := h.service.Expire(c.Request().Context(), id); err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
 	}

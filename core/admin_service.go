@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"context"
@@ -19,8 +19,8 @@ func NewAdminService(s Storage, h Hasher, as AuthService) AdminService {
 func (s adminService) SaveAdmin(ctx context.Context, r SaveParams) error {
 	a, err := NewAdmin(r)
 	if err != nil {
-		log.Printf("error: admin from save params %v\n", err)
-		return fmt.Errorf("admin from save params failed")
+		log.Printf("error: core from save params %v\n", err)
+		return fmt.Errorf("core from save params failed")
 	}
 
 	if r.Password != "" && a.HashPassword(s.hasher, r.Password) != nil {
@@ -32,8 +32,8 @@ func (s adminService) SaveAdmin(ctx context.Context, r SaveParams) error {
 	}
 
 	if err = s.storage.Save(ctx, a); err != nil {
-		log.Printf("error: save admin %v\n", err)
-		return fmt.Errorf("save admin failed")
+		log.Printf("error: save core %v\n", err)
+		return fmt.Errorf("save core failed")
 	}
 
 	return nil
@@ -51,8 +51,8 @@ func (s adminService) ListAdmins(ctx context.Context) ([]Admin, error) {
 
 func (s adminService) RemoveAdmin(ctx context.Context, id AdminID) error {
 	if err := s.storage.DeleteByID(ctx, id); err != nil {
-		log.Printf("error: remove admin %v\n", err)
-		return fmt.Errorf("remove admin failed")
+		log.Printf("error: remove core %v\n", err)
+		return fmt.Errorf("remove core failed")
 	}
 
 	return nil
