@@ -23,9 +23,9 @@ func TestApi(t *testing.T) {
 		}
 	})
 
-	t.Run("Create Admin - POST /api/v1/dashboard/admins", func(t *testing.T) {
-		payload := `{"email": "mike.jones@mail.com", "password": "who281330", "firstname": "Mike", "lastname": "Jones"}`
-		req, err := http.NewRequest(http.MethodPost, "http://localhost:9876/api/v1/dashboard/admins", strings.NewReader(payload))
+	t.Run("Create Credential - POST /api/v1/dashboard/credentials", func(t *testing.T) {
+		payload := `{"name": "app_123", "password": "who281330"}`
+		req, err := http.NewRequest(http.MethodPost, "http://localhost:9876/api/v1/dashboard/credentials", strings.NewReader(payload))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -57,13 +57,13 @@ func TestApi(t *testing.T) {
 			t.Fatalf("expected no error, got '%s'", result["error"])
 		}
 
-		if result["message"] != "admin saved" {
-			t.Fatalf("expected message 'admin saved', got '%s'", result["message"])
+		if result["message"] != "credential saved" {
+			t.Fatalf("expected message 'credential saved', got '%s'", result["message"])
 		}
 	})
 
-	t.Run("Get Admins - GET /api/v1/dashboard/admins", func(t *testing.T) {
-		req, err := http.NewRequest(http.MethodGet, "http://localhost:9876/api/v1/dashboard/admins", nil)
+	t.Run("Get Credentials - GET /api/v1/dashboard/credentials", func(t *testing.T) {
+		req, err := http.NewRequest(http.MethodGet, "http://localhost:9876/api/v1/dashboard/credentials", nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -91,13 +91,13 @@ func TestApi(t *testing.T) {
 		}
 
 		if len(result) != 2 {
-			t.Fatalf("expected 2 admin, got %d", len(result))
+			t.Fatalf("expected 2 credential, got %d", len(result))
 		}
 	})
 
-	t.Run("Update Admin - POST /api/v1/dashboard/admins", func(t *testing.T) {
-		payload := `{"id": 2, "email": "mike-jones@mail.com", "firstname": "Michael", "lastname": "Jones"}`
-		req, err := http.NewRequest(http.MethodPost, "http://localhost:9876/api/v1/dashboard/admins", strings.NewReader(payload))
+	t.Run("Update Credential - POST /api/v1/dashboard/credentials", func(t *testing.T) {
+		payload := `{"id": 2, "name": "app_123"}`
+		req, err := http.NewRequest(http.MethodPost, "http://localhost:9876/api/v1/dashboard/credentials", strings.NewReader(payload))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -129,13 +129,13 @@ func TestApi(t *testing.T) {
 			t.Fatalf("expected no error, got '%s'", result["error"])
 		}
 
-		if result["message"] != "admin saved" {
-			t.Fatalf("expected message 'admin saved', got '%s'", result["message"])
+		if result["message"] != "credential saved" {
+			t.Fatalf("expected message 'credential saved', got '%s'", result["message"])
 		}
 	})
 
-	t.Run("Delete Admin - DELETE /api/v1/dashboard/admins/:id", func(t *testing.T) {
-		req, err := http.NewRequest(http.MethodDelete, "http://localhost:9876/api/v1/dashboard/admins/2", nil)
+	t.Run("Delete Credential - DELETE /api/v1/dashboard/credentials/:id", func(t *testing.T) {
+		req, err := http.NewRequest(http.MethodDelete, "http://localhost:9876/api/v1/dashboard/credentials/2", nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -166,8 +166,8 @@ func TestApi(t *testing.T) {
 			t.Fatalf("expected no error, got '%s'", result["error"])
 		}
 
-		if result["message"] != "admin deleted" {
-			t.Fatalf("expected message 'admin deleted', got '%s'", result["message"])
+		if result["message"] != "credential deleted" {
+			t.Fatalf("expected message 'credential deleted', got '%s'", result["message"])
 		}
 	})
 
@@ -208,8 +208,8 @@ func TestApi(t *testing.T) {
 		}
 	})
 
-	t.Run("Get Admins with Invalid Token - GET /api/v1/dashboard/admins", func(t *testing.T) {
-		req, err := http.NewRequest(http.MethodGet, "http://localhost:9876/api/v1/dashboard/admins", nil)
+	t.Run("Get Credentials with Invalid Token - GET /api/v1/dashboard/credentials", func(t *testing.T) {
+		req, err := http.NewRequest(http.MethodGet, "http://localhost:9876/api/v1/dashboard/credentials", nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -228,7 +228,7 @@ func TestApi(t *testing.T) {
 }
 
 func getToken(t *testing.T) string {
-	credentials := `{"email": "root@mail.com", "password": "root1234"}`
+	credentials := `{"name": "root", "password": "root1234"}`
 	resp, err := http.Post("http://localhost:9876/api/v1/login", "application/json", strings.NewReader(credentials))
 	if err != nil {
 		t.Fatal(err)
