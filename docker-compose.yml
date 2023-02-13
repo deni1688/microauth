@@ -1,6 +1,8 @@
 version: '3'
 services:
   db:
+    env_file:
+      - .env
     image: postgres:latest
     environment:
       POSTGRES_USER: postgres
@@ -11,19 +13,22 @@ services:
     networks:
       - microauth_net
 
+
   api:
-    image: microauth:latest
+    env_file:
+      - .env
+    image: microauth:latest # for the purpose of this example, we will use the image we just built
     build: .
     environment:
       DB_HOST: db
-      DB_USER: postgres
-      DB_PASS: postgres
-      DB_NAME: microauth
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
       DB_PORT: 5432
       DB_SSL_MODE: disable
       DB_TIMEZONE: UTC
-      CREDENTIAL_NAME: root_000
-      CREDENTIAL_PASSWORD: root1234
+      CREDENTIAL_NAME: ${CREDENTIAL_NAME}
+      CREDENTIAL_PASSWORD: ${CREDENTIAL_PASSWORD}
     ports:
       - "9876:9876"
     depends_on:

@@ -228,7 +228,7 @@ func TestApi(t *testing.T) {
 }
 
 func getToken(t *testing.T) string {
-	credentials := `{"name": "root_000", "password": "root1234"}`
+	credentials := `{"name": "root", "password": "root1234"}`
 	resp, err := http.Post("http://localhost:9876/api/v1/login", "application/json", strings.NewReader(credentials))
 	if err != nil {
 		t.Fatal(err)
