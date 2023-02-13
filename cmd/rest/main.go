@@ -7,7 +7,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
-	"microauth/core"
+	"microauth/domain"
 	"microauth/infra"
 	"microauth/rest"
 )
@@ -21,12 +21,12 @@ func main() {
 	}
 	bh := infra.BcryptHasher{}
 
-	authSrv := core.NewAuthService(ps, bh)
-	adminSrv := core.NewAdminService(ps, bh, authSrv)
+	authSrv := domain.NewAuthService(ps, bh)
+	credentialSrv := domain.NewCredentialService(ps, bh, authSrv)
 
-	mustCreateDefaultAdmin(cf, ps, adminSrv)
+	mustCreateDefaultCredential(cf, ps, credentialSrv)
 
-	adminH := rest.NewAdminHandler(adminSrv)
+	credentialH := rest.NewCredentialHandler(credentialSrv)
 	authH := rest.NewAuthHandler(authSrv)
 	authM := rest.NewAuthMiddleware(authSrv)
 
@@ -40,9 +40,9 @@ func main() {
 	dash := api.Group("/dashboard")
 	dash.Use(authM)
 
-	dash.GET("/admins", adminH.HandleGetAdmins)
-	dash.POST("/admins", adminH.HandleSaveAdmin)
-	dash.DELETE("/admins/:id", adminH.HandleDeleteAdmin)
+	dash.GET("/credentials", credentialH.HandleGetCredentials)
+	dash.POST("/credentials", credentialH.HandleSaveCredential)
+	dash.DELETE("/credentials/:id", credentialH.HandleDeleteCredential)
 
 	e.Logger.Fatal(e.Start(":9876"))
 }
@@ -71,20 +71,20 @@ func mustConnectDB(cf *config) *gorm.DB {
 	return db
 }
 
-func mustCreateDefaultAdmin(cf *config, s core.Storage, as core.AdminService) {
+func mustCreateDefaultCredential(cf *config, s domain.Storage, as domain.CredentialService) {
 	ctx := context.Background()
-	_, err := s.FindByEmail(ctx, cf.DefaultAdminEmail)
+	_, err := s.FindByName(ctx, cf.DefaultCredentialName)
 	if err == nil {
 		log.Println("Skipping default core creation")
 		return
 	}
 
-	if err = as.SaveAdmin(ctx, core.SaveParams{
-		Firstname: cf.DefaultAdminFirstname,
-		Lastname:  cf.DefaultAdminLastname,
-		Email:     cf.DefaultAdminEmail,
-		Password:  cf.DefaultAdminPassword,
+	if err = as.SaveCredential(ctx, domain.SaveParams{
+		Name:     cf.DefaultCredentialName,
+		Password: cf.DefaultCredentialPassword,
 	}); err != nil {
-		log.Fatalf("Failed to create default core: %v", err)
+		log.Fatalf("Failed to create default credential: %v", err)
+	} else {
+		log.Println("Default credential created")
 	}
 }

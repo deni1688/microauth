@@ -22,10 +22,8 @@ services:
       DB_PORT: 5432
       DB_SSL_MODE: disable
       DB_TIMEZONE: UTC
-      ADMIN_FIRSTNAME: root
-      ADMIN_LASTNAME: root
-      ADMIN_EMAIL: root@mail.com
-      ADMIN_PASSWORD: root1234
+      CREDENTIAL_NAME: root_000
+      CREDENTIAL_PASSWORD: root1234
     ports:
       - "9876:9876"
     depends_on:

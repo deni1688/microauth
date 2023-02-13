@@ -1,4 +1,4 @@
-package core
+package domain
 
 import (
 	"crypto/sha256"
@@ -8,39 +8,27 @@ import (
 	"time"
 )
 
-type Admin struct {
-	ID           AdminID   `json:"id"`
-	Firstname    string    `json:"firstname"`
-	Lastname     string    `json:"lastname"`
-	Email        string    `json:"email"`
-	PasswordHash string    `json:"-"`
-	AuthToken    AuthToken `json:"-"`
+type Credential struct {
+	ID           CredentialID `json:"id"`
+	Name         string       `json:"name"`
+	PasswordHash string       `json:"-"`
+	AuthToken    AuthToken    `json:"-"`
 }
 
-func NewAdmin(params SaveParams) (Admin, error) {
+func NewCredential(params SaveParams) (Credential, error) {
 	if err := validate(params); err != nil {
-		return Admin{}, err
+		return Credential{}, err
 	}
 
-	return Admin{
-		ID:        params.ID,
-		Firstname: params.Firstname,
-		Lastname:  params.Lastname,
-		Email:     params.Email,
+	return Credential{
+		ID:   params.ID,
+		Name: params.Name,
 	}, nil
 }
 
 func validate(params SaveParams) error {
-	if params.Email == "" {
-		return fmt.Errorf("email is required")
-	}
-
-	if params.Firstname == "" {
-		return fmt.Errorf("firstname is required")
-	}
-
-	if params.Lastname == "" {
-		return fmt.Errorf("lastname is required")
+	if params.Name == "" {
+		return fmt.Errorf("name is required")
 	}
 
 	if params.ID == 0 {
@@ -55,7 +43,7 @@ func validate(params SaveParams) error {
 	return nil
 }
 
-func (a *Admin) HashPassword(hasher Hasher, password string) error {
+func (a *Credential) HashPassword(hasher Hasher, password string) error {
 	hash, err := hasher.Hash(password)
 	if err != nil {
 		return fmt.Errorf("hash password failed %v", err)
@@ -65,7 +53,7 @@ func (a *Admin) HashPassword(hasher Hasher, password string) error {
 	return nil
 }
 
-func (a *Admin) GenerateAuthToken() error {
+func (a *Credential) GenerateAuthToken() error {
 	h := sha256.New()
 	if _, err := h.Write([]byte(fmt.Sprintf("%d-%s", time.Now().Unix(), randString()))); err != nil {
 		return fmt.Errorf("sha256 write for token id failed %v", err)
@@ -79,11 +67,11 @@ func (a *Admin) GenerateAuthToken() error {
 	return nil
 }
 
-func (a *Admin) AuthTokenExpired() bool {
+func (a *Credential) AuthTokenExpired() bool {
 	return a.AuthToken.ExpiresAt.Before(time.Now())
 }
 
-func (a *Admin) ExpireAuthToken() {
+func (a *Credential) ExpireAuthToken() {
 	a.AuthToken = AuthToken{ID: "-", ExpiresAt: time.Now().Add(-(time.Hour * 24))}
 }
 
